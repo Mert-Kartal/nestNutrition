@@ -72,7 +72,7 @@ model Category {
   id    String @id @default(uuid())
   name  String
   slug  String @unique
-  order Int
+  order Int    @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
