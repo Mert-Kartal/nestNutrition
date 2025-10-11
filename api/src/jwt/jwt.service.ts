@@ -84,6 +84,12 @@ export class JwtService {
       header,
       this.configService.get('JWT_REFRESH_SECRET') as string,
     );
+    const tokenRecord = await this.prisma.token.findUnique({
+      where: { id: decoded.jti },
+    });
+    if (!tokenRecord || tokenRecord.revokedAt) {
+      throw new UnauthorizedException('Invalid token');
+    }
     await this.prisma.token.updateMany({
       where: { userId: decoded.userId },
       data: { revokedAt: new Date() },
