@@ -7,6 +7,10 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { BullmqModule } from './bullmq/bullmq.module';
 import { RedisModule } from './redis/redis.module';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
+import { EmailModule } from './email/email.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -17,6 +21,9 @@ import { RedisModule } from './redis/redis.module';
     PrismaModule,
     BullmqModule,
     RedisModule,
+    AuthModule,
+    UserModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

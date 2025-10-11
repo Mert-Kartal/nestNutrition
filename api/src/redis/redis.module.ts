@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { Redis } from 'ioredis';
-export const REDIS_CLIENT = 'REDIS_CLIENT';
 import { ConfigService } from '@nestjs/config';
+
+export const REDIS_CLIENT = 'REDIS_CLIENT';
 
 @Module({
   providers: [
