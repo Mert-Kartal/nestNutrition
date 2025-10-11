@@ -1,0 +1,211 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+  MODERATOR
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum Providers {
+  GOOGLE
+}
+
+model Account {
+  id                String    @id @default(uuid())
+  userId            String    @map("user_id")
+  providerAccountId String    @unique @map("provider_account_id")
+  provider          Providers
+
+  User User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("accounts")
+}
+
+model User {
+  id       String  @id @default(uuid())
+  name     String
+  lastName String
+  username String  @unique
+  fullName String
+  email    String  @unique
+  password String?
+  phone    String?
+  photo    String?
+  role     Role    @default(USER)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  comments  Comment[]
+  tokens    Token[]
+  cartItems CartItem[]
+  orders    Order[]
+  accounts  Account[]
+
+  @@map("users")
+}
+
+model Category {
+  id    String @id @default(uuid())
+  name  String
+  slug  String @unique
+  order Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id               String @id @default(uuid())
+  categoryId       String
+  name             String
+  slug             String @unique
+  shortDescription String @db.VarChar(50)
+  longDescription  String @db.VarChar(250)
+  price            Int
+  stock_quantity   Int
+  primaryPhoto     String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  productPhotos ProductPhoto[]
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  comments      Comment[]
+
+  @@map("products")
+}
+
+model ProductPhoto {
+  id        String  @id @default(uuid())
+  productId String
+  isPrimary Boolean @default(false)
+  photoUrl  String
+  photoSize String
+  order     Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_photos")
+}
+
+model Comment {
+  id        String  @id @default(uuid())
+  userId    String
+  productId String
+  title     String?
+  content   String?
+  rating    Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([productId])
+  @@map("comments")
+}
+
+model CartItem {
+  id        String @id @default(uuid())
+  userId    String
+  productId String
+  quantity  Int    @default(1)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([productId])
+  @@index([userId, productId])
+  @@map("cart_items")
+}
+
+model Order {
+  id         String      @id @default(uuid())
+  userId     String
+  totalPrice Int
+  status     OrderStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  orderItems OrderItem[]
+
+  @@index([userId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int    @default(1)
+  unitPrice Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  Product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+model Token {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  revokedAt DateTime? @map("revoked_at")
+  expiresAt DateTime  @map("expires_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("tokens")
+}
