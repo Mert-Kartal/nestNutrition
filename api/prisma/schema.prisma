@@ -46,9 +46,9 @@ model Account {
 model User {
   id       String  @id @default(uuid())
   name     String
-  lastName String
+  lastName String  @map("last_name")
   username String  @unique
-  fullName String
+  fullName String  @map("full_name")
   email    String  @unique
   password String?
   phone    String?
@@ -84,14 +84,14 @@ model Category {
 
 model Product {
   id               String @id @default(uuid())
-  categoryId       String
+  categoryId       String @map("category_id")
   name             String
   slug             String @unique
-  shortDescription String @db.VarChar(50)
-  longDescription  String @db.VarChar(250)
+  shortDescription String
+  longDescription  String
   price            Int
   stock_quantity   Int
-  primaryPhoto     String
+  primaryPhoto     String @map("primary_photo")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -108,10 +108,10 @@ model Product {
 
 model ProductPhoto {
   id        String  @id @default(uuid())
-  productId String
+  productId String  @map("product_id")
   isPrimary Boolean @default(false)
-  photoUrl  String
-  photoSize String
+  photoUrl  String  @map("photo_url")
+  photoSize Int     @map("photo_size")
   order     Int     @default(0)
 
   createdAt DateTime @default(now())
@@ -125,8 +125,8 @@ model ProductPhoto {
 
 model Comment {
   id        String  @id @default(uuid())
-  userId    String
-  productId String
+  userId    String  @map("user_id")
+  productId String  @map("product_id")
   title     String?
   content   String?
   rating    Int
@@ -144,8 +144,8 @@ model Comment {
 
 model CartItem {
   id        String @id @default(uuid())
-  userId    String
-  productId String
+  userId    String @map("user_id")
+  productId String @map("product_id")
   quantity  Int    @default(1)
 
   createdAt DateTime @default(now())
@@ -162,8 +162,8 @@ model CartItem {
 
 model Order {
   id         String      @id @default(uuid())
-  userId     String
-  totalPrice Int
+  userId     String      @map("user_id")
+  totalPrice Int         @map("total_price")
   status     OrderStatus @default(PENDING)
 
   createdAt DateTime @default(now())
@@ -179,10 +179,10 @@ model Order {
 
 model OrderItem {
   id        String @id @default(uuid())
-  orderId   String
-  productId String
+  orderId   String @map("order_id")
+  productId String @map("product_id")
   quantity  Int    @default(1)
-  unitPrice Int
+  unitPrice Int    @map("unit_price")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

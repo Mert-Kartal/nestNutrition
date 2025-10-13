@@ -9,5 +9,6 @@ import { SharedModule } from '../shared/shared.module';
   imports: [PrismaModule, SharedModule],
   controllers: [CategoryController],
   providers: [CategoryService, CategoryRepository],
+  exports: [CategoryService],
 })
 export class CategoryModule {}
