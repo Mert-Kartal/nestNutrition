@@ -31,13 +31,14 @@ export class CommentService {
     return this.commentRepository.findAll();
   }
   async findById(id: string) {
-    return this.commentRepository.findById(id);
-  }
-  async update(userId: string, id: string, data: UpdateCommentDto) {
     const comment = await this.commentRepository.findById(id);
     if (!comment) {
       throw new NotFoundException('Comment not found');
     }
+    return comment;
+  }
+  async update(userId: string, id: string, data: UpdateCommentDto) {
+    const comment = await this.findById(id);
     if (comment.userId !== userId) {
       throw new ForbiddenException(
         'You are not allowed to update this comment',
@@ -60,15 +61,13 @@ export class CommentService {
     });
   }
   async delete(userId: string, id: string) {
-    const comment = await this.commentRepository.findById(id);
-    if (!comment) {
-      throw new NotFoundException('Comment not found');
-    }
+    const comment = await this.findById(id);
     if (comment.userId !== userId) {
       throw new ForbiddenException(
         'You are not allowed to delete this comment',
       );
     }
-    return this.commentRepository.delete(id);
+    await this.commentRepository.delete(id);
+    return 'Comment deleted successfully';
   }
 }
