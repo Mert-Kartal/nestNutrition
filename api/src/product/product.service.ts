@@ -60,7 +60,7 @@ export class ProductService {
   }
   async findById(id: string) {
     const product = await this.productRepository.findById(id);
-    if (!product) {
+    if (product.length === 0) {
       throw new NotFoundException('Product not found');
     }
     return product;
@@ -110,24 +110,24 @@ export class ProductService {
     return this.productRepository.update(id, updatePlain);
   }
   async delete(id: string) {
-    const product = await this.productRepository.show(id);
-    if (!product) {
+    const product = await this.productRepository.findById(id);
+    if (product.length === 0) {
       throw new NotFoundException('Product not found');
     }
     this.fileUploadService.deleteFiles(
-      product.productPhotos.map((photo) => photo.photoUrl),
+      product[0].photo_urls.map((photo) => photo),
     );
     await this.productRepository.delete(id);
     return 'Product deleted successfully';
   }
   async addPhoto(id: string, photos: Express.Multer.File[]) {
-    const product = await this.productRepository.show(id);
-    if (!product) {
+    const product = await this.productRepository.findById(id);
+    if (product.length === 0) {
       throw new NotFoundException('Product not found');
     }
     if (
-      product.productPhotos.length >= 10 ||
-      product.productPhotos.length + photos.length > 10
+      product[0].photo_urls.length >= 10 ||
+      product[0].photo_urls.length + photos.length > 10
     ) {
       throw new BadRequestException('Product already has 10 photos');
     }
@@ -135,7 +135,7 @@ export class ProductService {
       return {
         photoUrl: photo.filename,
         photoSize: photo.size,
-        order: product.productPhotos.length + index,
+        order: product[0].photo_urls.length + index,
       };
     });
     return this.productRepository.createPhoto(id, photoData);

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateProductDto,
+  FoundProduct,
   ProductPhotoType,
   UpdateProductDto,
 } from './product.dto';
@@ -29,7 +30,7 @@ export class ProductRepository {
   findAll() {
     return this.prisma.product.findMany();
   }
-  findById(id: string) {
+  findById(id: string): Promise<FoundProduct[]> {
     return this.prisma.$queryRaw`
       SELECT
         p.*,
@@ -42,14 +43,6 @@ export class ProductRepository {
       WHERE p.id = ${id}
       GROUP BY p.id;
     `;
-  }
-  show(id: string) {
-    return this.prisma.product.findUnique({
-      where: { id },
-      include: {
-        productPhotos: true,
-      },
-    });
   }
   findBySlug(slug: string) {
     return this.prisma.product.findUnique({

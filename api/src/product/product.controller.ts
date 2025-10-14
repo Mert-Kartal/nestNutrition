@@ -9,6 +9,7 @@ import {
   UploadedFiles,
   UseInterceptors,
   ParseUUIDPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import {
@@ -17,10 +18,12 @@ import {
 } from './product.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { FileValidationPipe } from '../shared/pipe/file-validation.pipe';
+import { JwtGuard } from '../shared/guard/jwt.guard';
 
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
+  @UseGuards(JwtGuard)
   @Post()
   @UseInterceptors(FilesInterceptor('photos'))
   create(
@@ -37,6 +40,7 @@ export class ProductController {
   findById(@Param('id', ParseUUIDPipe) id: string) {
     return this.productService.findById(id);
   }
+  @UseGuards(JwtGuard)
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -44,10 +48,12 @@ export class ProductController {
   ) {
     return this.productService.update(id, data);
   }
+  @UseGuards(JwtGuard)
   @Delete(':id')
   delete(@Param('id', ParseUUIDPipe) id: string) {
     return this.productService.delete(id);
   }
+  @UseGuards(JwtGuard)
   @Post(':id/photos')
   @UseInterceptors(FilesInterceptor('photos'))
   addPhoto(

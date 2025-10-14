@@ -11,5 +11,6 @@ import { FileUploadModule } from '../file-upload/file-upload.module';
   imports: [PrismaModule, SharedModule, CategoryModule, FileUploadModule],
   providers: [ProductService, ProductRepository],
   controllers: [ProductController],
+  exports: [ProductService],
 })
 export class ProductModule {}

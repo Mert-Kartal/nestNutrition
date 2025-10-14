@@ -11,6 +11,7 @@ import {
 } from 'class-validator';
 import { PartialType, OmitType } from '@nestjs/mapped-types';
 import { Transform, Type } from 'class-transformer';
+import { Product } from '@prisma/client';
 
 export class ProductPhotoType {
   @IsNotEmpty()
@@ -97,4 +98,10 @@ export class UpdateProductServiceDto extends OmitType(UpdateProductDto, [
   @IsOptional()
   @IsString()
   description?: string;
+}
+
+export interface FoundProduct extends Product {
+  average_rating: number;
+  comment_count: number;
+  photo_urls: string[];
 }

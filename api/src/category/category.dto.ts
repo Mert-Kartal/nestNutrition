@@ -1,5 +1,5 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
-import { OmitType } from '@nestjs/mapped-types';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 
 export class CreateCategoryDto {
   @IsNotEmpty()
@@ -15,19 +15,7 @@ export class CreateCategoryDto {
   slug: string;
 }
 
-export class UpdateCategoryDto {
-  @IsOptional()
-  @IsString()
-  name?: string;
-
-  @IsOptional()
-  @IsNumber()
-  order?: number;
-
-  @IsOptional()
-  @IsString()
-  slug?: string;
-}
+export class UpdateCategoryDto extends PartialType(CreateCategoryDto) {}
 
 export class CreateCategoryServiceDto extends OmitType(CreateCategoryDto, [
   'slug',
