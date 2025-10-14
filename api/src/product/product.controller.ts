@@ -48,4 +48,12 @@ export class ProductController {
   delete(@Param('id', ParseUUIDPipe) id: string) {
     return this.productService.delete(id);
   }
+  @Post(':id/photos')
+  @UseInterceptors(FilesInterceptor('photos'))
+  addPhoto(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFiles(new FileValidationPipe()) photos: Express.Multer.File[],
+  ) {
+    return this.productService.addPhoto(id, photos);
+  }
 }

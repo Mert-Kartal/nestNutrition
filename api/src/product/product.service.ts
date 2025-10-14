@@ -120,4 +120,25 @@ export class ProductService {
     await this.productRepository.delete(id);
     return 'Product deleted successfully';
   }
+  async addPhoto(id: string, photos: Express.Multer.File[]) {
+    const product = await this.productRepository.show(id);
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+    if (
+      product.productPhotos.length >= 10 ||
+      product.productPhotos.length + photos.length > 10
+    ) {
+      throw new BadRequestException('Product already has 10 photos');
+    }
+    const photoData = photos.map((photo, index) => {
+      return {
+        photoUrl: photo.filename,
+        photoSize: photo.size,
+        order: product.productPhotos.length + index,
+      };
+    });
+    return this.productRepository.createPhoto(id, photoData);
+  }
+  //will add update and delete photos
 }

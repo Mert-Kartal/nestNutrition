@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateProductDto, UpdateProductDto } from './product.dto';
+import {
+  CreateProductDto,
+  ProductPhotoType,
+  UpdateProductDto,
+} from './product.dto';
 
 @Injectable()
 export class ProductRepository {
@@ -61,6 +65,14 @@ export class ProductRepository {
   delete(id: string) {
     return this.prisma.product.delete({
       where: { id },
+    });
+  }
+  createPhoto(id: string, data: ProductPhotoType[]) {
+    return this.prisma.productPhoto.createMany({
+      data: data.map((photo) => ({
+        ...photo,
+        productId: id,
+      })),
     });
   }
 }

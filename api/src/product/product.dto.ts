@@ -20,6 +20,10 @@ export class ProductPhotoType {
   @IsNotEmpty()
   @IsNumber()
   photoSize: number;
+
+  @IsOptional()
+  @IsNumber()
+  order?: number;
 }
 
 export class CreateProductDto {
@@ -69,7 +73,6 @@ export class CreateProductDto {
 }
 
 export class UpdateProductDto extends OmitType(PartialType(CreateProductDto), [
-  'primaryPhoto',
   'productPhotos',
 ]) {}
 
@@ -89,6 +92,7 @@ export class UpdateProductServiceDto extends OmitType(UpdateProductDto, [
   'slug',
   'shortDescription',
   'longDescription',
+  'primaryPhoto',
 ]) {
   @IsOptional()
   @IsString()
