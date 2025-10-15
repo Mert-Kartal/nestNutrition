@@ -5,6 +5,9 @@ import fs from 'fs';
 import { extname } from 'path';
 import { FileUploadController } from './file-upload.controller';
 import { FileUploadService } from './file-upload.service';
+import { BullModule } from '@nestjs/bullmq';
+import { FileUploadProducerService } from './file-upload.producer.service';
+import { FileUploadProcessor } from './file-upload.processor';
 
 @Module({
   imports: [
@@ -36,9 +39,16 @@ import { FileUploadService } from './file-upload.service';
         fileSize: 1024 * 1024 * 5,
       },
     }),
+    BullModule.registerQueue({
+      name: 'file-upload-queue',
+    }),
   ],
   controllers: [FileUploadController],
-  providers: [FileUploadService],
-  exports: [FileUploadService, MulterModule],
+  providers: [
+    FileUploadService,
+    FileUploadProducerService,
+    FileUploadProcessor,
+  ],
+  exports: [FileUploadService, MulterModule, FileUploadProducerService],
 })
 export class FileUploadModule {}

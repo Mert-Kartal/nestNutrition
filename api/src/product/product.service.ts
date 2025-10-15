@@ -11,14 +11,14 @@ import {
 } from './product.dto';
 import slugify from 'slugify';
 import { CategoryService } from '../category/category.service';
-import { FileUploadService } from '../file-upload/file-upload.service';
+import { FileUploadProducerService } from '../file-upload/file-upload.producer.service';
 
 @Injectable()
 export class ProductService {
   constructor(
     private readonly productRepository: ProductRepository,
     private readonly categoryService: CategoryService,
-    private readonly fileUploadService: FileUploadService,
+    private readonly fileUploadProducerService: FileUploadProducerService,
   ) {}
   async create(data: CreateProductServiceDto, photos: Express.Multer.File[]) {
     await this.categoryService.findById(data.categoryId);
@@ -114,7 +114,7 @@ export class ProductService {
     if (product.length === 0) {
       throw new NotFoundException('Product not found');
     }
-    this.fileUploadService.deleteFiles(
+    await this.fileUploadProducerService.removeFileUploadJob(
       product[0].photo_urls.map((photo) => photo),
     );
     await this.productRepository.delete(id);

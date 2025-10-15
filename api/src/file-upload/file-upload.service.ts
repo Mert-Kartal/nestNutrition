@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
-import { createReadStream, existsSync, unlinkSync } from 'fs';
+import { createReadStream, existsSync } from 'fs';
+import { unlink } from 'fs/promises';
 import { join } from 'path';
 import type { Response } from 'express';
 @Injectable()
@@ -18,11 +19,11 @@ export class FileUploadService {
 
     return new StreamableFile(stream);
   }
-  deleteFiles(files: string[]) {
+  async deleteFiles(files: string[]): Promise<void> {
     for (const file of files) {
       const filePath = join(process.cwd(), 'uploads', file);
       if (existsSync(filePath)) {
-        unlinkSync(filePath);
+        await unlink(filePath);
       }
     }
   }
