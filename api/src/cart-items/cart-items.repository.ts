@@ -49,4 +49,14 @@ export class CartItemsRepository {
       where: { userId_productId: { userId, productId } },
     });
   }
+  removeAll(userId: string) {
+    return this.prisma.cartItem.deleteMany({
+      where: { userId },
+    });
+  }
+  removeAllByProductIdAndQuantity(productId: string, quantity: number) {
+    return this.prisma.cartItem.deleteMany({
+      where: { productId, quantity: { gt: quantity } },
+    });
+  }
 }

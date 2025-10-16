@@ -39,4 +39,8 @@ export class CartItemsController {
   remove(@Param('id', ParseUUIDPipe) id: string, @Req() req: Request) {
     return this.cartItemsService.remove(req.user.userId, id);
   }
+  @Delete()
+  removeAll(@Req() req: Request) {
+    return this.cartItemsService.removeAll(req.user.userId);
+  }
 }

@@ -12,13 +12,14 @@ import {
 import slugify from 'slugify';
 import { CategoryService } from '../category/category.service';
 import { FileUploadProducerService } from '../file-upload/file-upload.producer.service';
-
+import { EventEmitter2 } from '@nestjs/event-emitter';
 @Injectable()
 export class ProductService {
   constructor(
     private readonly productRepository: ProductRepository,
     private readonly categoryService: CategoryService,
     private readonly fileUploadProducerService: FileUploadProducerService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
   async create(data: CreateProductServiceDto, photos: Express.Multer.File[]) {
     await this.categoryService.findById(data.categoryId);
@@ -100,6 +101,13 @@ export class ProductService {
           updatePlain.longDescription = data.description;
           break;
         }
+        case 'stock_quantity':
+          updatePlain.stock_quantity = data.stock_quantity;
+          this.eventEmitter.emit('product.stock_quantity.updated', {
+            id,
+            stock_quantity: data.stock_quantity,
+          });
+          break;
         default:
           updatePlain[key] = data[
             key

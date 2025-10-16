@@ -7,14 +7,14 @@ import { CreateCartDto, UpdateCartDto } from './cart-items.dto';
 import { CartItemsRepository } from './cart-items.repository';
 import { ProductService } from '../product/product.service';
 import { UserService } from '../user/user.service';
-import { Product } from '@prisma/client';
-
+import { OnEvent, EventEmitter2 } from '@nestjs/event-emitter';
 @Injectable()
 export class CartItemsService {
   constructor(
     private readonly cartItemsRepository: CartItemsRepository,
     private readonly productService: ProductService,
     private readonly userService: UserService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
   private async findOne(userId: string, productId: string) {
     const cartItem = await this.cartItemsRepository.findOne(userId, productId);
@@ -59,7 +59,7 @@ export class CartItemsService {
       await this.remove(userId, productId);
       return 'Cart item removed';
     }
-    if (data.quantity > (cartItem.Product as Product).stock_quantity) {
+    if (data.quantity > cartItem.Product.stock_quantity) {
       throw new BadRequestException('Product stock is not enough');
     }
     await this.cartItemsRepository.update(userId, productId, data);
@@ -73,9 +73,18 @@ export class CartItemsService {
     await this.cartItemsRepository.remove(userId, productId);
     return 'Cart item removed';
   }
+  async removeAll(userId: string) {
+    await this.cartItemsRepository.removeAll(userId);
+    return 'All cart items removed';
+  }
+  @OnEvent('product.stock_quantity.updated')
+  async removeProductsFromCartByEvent(data: {
+    id: string;
+    stock_quantity: number;
+  }) {
+    await this.cartItemsRepository.removeAllByProductIdAndQuantity(
+      data.id,
+      data.stock_quantity,
+    );
+  }
 }
-
-/**
- * ürünün stok adeti 0 ise sepetten sil
- * ürün stok adeti sepetteki miktardan az ise sepetten sil
- */
