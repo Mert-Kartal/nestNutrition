@@ -16,6 +16,8 @@ import { ProductModule } from './product/product.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { CommentModule } from './comment/comment.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { CartItemsModule } from './cart-items/cart-items.module';
 
 @Module({
   imports: [
@@ -26,6 +28,7 @@ import { CommentModule } from './comment/comment.module';
       rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
     }),
+    EventEmitterModule.forRoot(),
     SharedModule,
     JwtModule,
     PrismaModule,
@@ -38,6 +41,7 @@ import { CommentModule } from './comment/comment.module';
     FileUploadModule,
     ProductModule,
     CommentModule,
+    CartItemsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
