@@ -6,6 +6,7 @@ import {
   ProductPhotoType,
   UpdateProductDto,
 } from './product.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ProductRepository {
@@ -49,8 +50,9 @@ export class ProductRepository {
       where: { slug },
     });
   }
-  update(id: string, data: UpdateProductDto) {
-    return this.prisma.product.update({
+  update(id: string, data: UpdateProductDto, tx?: Prisma.TransactionClient) {
+    const client = tx || this.prisma;
+    return client.product.update({
       where: { id },
       data,
     });

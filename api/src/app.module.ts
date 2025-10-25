@@ -18,6 +18,7 @@ import { join } from 'path';
 import { CommentModule } from './comment/comment.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CartItemsModule } from './cart-items/cart-items.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { CartItemsModule } from './cart-items/cart-items.module';
     ProductModule,
     CommentModule,
     CartItemsModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [AppService],

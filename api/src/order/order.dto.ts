@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, IsNumber, Min } from 'class-validator';
 
-export class CreateCartDto {
+export class CreateOrderItemDto {
   @IsNotEmpty()
   @IsString()
   productId: string;
@@ -9,20 +9,11 @@ export class CreateCartDto {
   @IsNumber()
   @Min(1)
   quantity: number;
-}
 
-export class UpdateCartDto {
   @IsNotEmpty()
   @IsNumber()
   @Min(0)
-  quantity: number;
+  total_price: number;
 }
 
-export class CartItemDto {
-  product_id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  total_price: number;
-  grand_total: number;
-}
+export class UpdateOrderDto {}

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCartDto, UpdateCartDto } from './cart-items.dto';
+import { CartItemDto, CreateCartDto, UpdateCartDto } from './cart-items.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CartItemsRepository {
@@ -13,7 +14,7 @@ export class CartItemsRepository {
       },
     });
   }
-  findAll(userId: string) {
+  findAll(userId: string): Promise<CartItemDto[]> {
     return this.prisma.$queryRaw`
   WITH cart_data AS (
     SELECT
@@ -49,8 +50,9 @@ export class CartItemsRepository {
       where: { userId_productId: { userId, productId } },
     });
   }
-  removeAll(userId: string) {
-    return this.prisma.cartItem.deleteMany({
+  removeAll(userId: string, tx?: Prisma.TransactionClient) {
+    const client = tx || this.prisma;
+    return client.cartItem.deleteMany({
       where: { userId },
     });
   }

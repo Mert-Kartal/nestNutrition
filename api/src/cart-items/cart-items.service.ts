@@ -8,6 +8,8 @@ import { CartItemsRepository } from './cart-items.repository';
 import { ProductService } from '../product/product.service';
 import { UserService } from '../user/user.service';
 import { OnEvent, EventEmitter2 } from '@nestjs/event-emitter';
+import { Prisma } from '@prisma/client';
+
 @Injectable()
 export class CartItemsService {
   constructor(
@@ -44,7 +46,7 @@ export class CartItemsService {
   }
   async findAll(userId: string) {
     const cartItems = await this.cartItemsRepository.findAll(userId);
-    if (!cartItems) {
+    if (cartItems.length === 0) {
       throw new NotFoundException('Cart is empty');
     }
     return cartItems;
@@ -73,8 +75,8 @@ export class CartItemsService {
     await this.cartItemsRepository.remove(userId, productId);
     return 'Cart item removed';
   }
-  async removeAll(userId: string) {
-    await this.cartItemsRepository.removeAll(userId);
+  async removeAll(userId: string, tx?: Prisma.TransactionClient) {
+    await this.cartItemsRepository.removeAll(userId, tx);
     return 'All cart items removed';
   }
   @OnEvent('product.stock_quantity.updated')

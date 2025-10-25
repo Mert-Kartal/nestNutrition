@@ -11,5 +11,6 @@ import { ProductModule } from '../product/product.module';
   imports: [PrismaModule, SharedModule, UserModule, ProductModule],
   controllers: [CartItemsController],
   providers: [CartItemsService, CartItemsRepository],
+  exports: [CartItemsService],
 })
 export class CartItemsModule {}

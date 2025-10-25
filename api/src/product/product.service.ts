@@ -13,6 +13,8 @@ import slugify from 'slugify';
 import { CategoryService } from '../category/category.service';
 import { FileUploadProducerService } from '../file-upload/file-upload.producer.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Prisma } from '@prisma/client';
+
 @Injectable()
 export class ProductService {
   constructor(
@@ -66,7 +68,11 @@ export class ProductService {
     }
     return product;
   }
-  async update(id: string, data: UpdateProductServiceDto) {
+  async update(
+    id: string,
+    data: UpdateProductServiceDto,
+    tx?: Prisma.TransactionClient,
+  ) {
     await this.findById(id);
     const updatePlain: UpdateProductDto = {};
     for (const key in data) {
@@ -115,7 +121,7 @@ export class ProductService {
           break;
       }
     }
-    return this.productRepository.update(id, updatePlain);
+    return this.productRepository.update(id, updatePlain, tx);
   }
   async delete(id: string) {
     const product = await this.productRepository.findById(id);
