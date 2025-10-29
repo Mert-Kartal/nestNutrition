@@ -22,11 +22,8 @@ export class AuthService {
     const existingUsername = await this.userService.findByUsername(
       data.username,
     );
-    if (existingEmail && existingEmail.password) {
-      throw new BadRequestException('Email is taken');
-    }
-    if (existingUsername) {
-      throw new BadRequestException('Username is taken');
+    if (existingEmail || existingUsername) {
+      throw new BadRequestException('Email or username is taken');
     }
     try {
       const hashedPassword = await argon2.hash(data.password);
@@ -89,20 +86,15 @@ export class AuthService {
       throw new BadRequestException('Invalid code');
     }
     const existingUser = await this.userService.findByEmail(tempUser.email);
-    let user: User;
+    let user: Omit<User, 'password' | 'createdAt' | 'updatedAt' | 'deletedAt'>;
     if (existingUser) {
-      if (!existingUser.password) {
-        user = await this.userService.update(existingUser.id, {
-          password: tempUser.password,
-        });
-      } else {
-        throw new BadRequestException('User already exists');
-      }
+      throw new BadRequestException('User already exists');
     } else {
       user = await this.userService.create({
         email: tempUser.email,
         name: tempUser.name,
         lastName: tempUser.lastName,
+        fullName: `${tempUser.name} ${tempUser.lastName}`,
         username: tempUser.username,
         password: tempUser.password,
       });
@@ -122,8 +114,5 @@ export class AuthService {
   }
   async refresh(header: string) {
     return this.jwtService.refresh(header);
-  }
-  async getUser(id: string) {
-    return this.userService.findById(id);
   }
 }

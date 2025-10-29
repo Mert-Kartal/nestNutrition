@@ -5,11 +5,19 @@ import { CreateUserDto, UpdateUserDto } from './user.dto';
 @Injectable()
 export class UserRepository {
   constructor(private readonly prisma: PrismaService) {}
-  async create(user: CreateUserDto) {
+  async create(data: CreateUserDto) {
     return this.prisma.user.create({
-      data: {
-        ...user,
-        fullName: `${user.name} ${user.lastName}`,
+      data,
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        name: true,
+        lastName: true,
+        fullName: true,
+        phone: true,
+        photo: true,
+        role: true,
       },
     });
   }
@@ -38,10 +46,35 @@ export class UserRepository {
       },
     });
   }
-  async update(id: string, user: UpdateUserDto) {
+  async findAll() {
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        name: true,
+        lastName: true,
+        fullName: true,
+        phone: true,
+        photo: true,
+      },
+    });
+  }
+  async update(id: string, data: UpdateUserDto) {
     return this.prisma.user.update({
       where: { id },
-      data: user,
+      data,
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        name: true,
+        lastName: true,
+        fullName: true,
+        phone: true,
+        photo: true,
+        role: true,
+      },
     });
   }
 }
