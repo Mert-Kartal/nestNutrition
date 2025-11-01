@@ -24,39 +24,46 @@ export class ProductService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
   async create(data: CreateProductServiceDto, photos: Express.Multer.File[]) {
-    await this.categoryService.findById(data.categoryId);
-    const slug = slugify(data.name, {
-      lower: true,
-      replacement: '-',
-      trim: true,
-    });
-    const existSlug = await this.productRepository.findBySlug(slug);
-    if (existSlug) {
-      throw new BadRequestException('Slug already exists');
-    }
-    const shortDescription =
-      data.description.length > 50
-        ? data.description.substring(0, 50) + '...'
-        : data.description;
-    const longDescription = data.description;
-    const photoData = photos.map((photo) => {
-      return {
-        photoUrl: photo.filename,
-        photoSize: photo.size,
+    try {
+      await this.categoryService.findById(data.categoryId);
+      const slug = slugify(data.name, {
+        lower: true,
+        replacement: '-',
+        trim: true,
+      });
+      const existSlug = await this.productRepository.findBySlug(slug);
+      if (existSlug) {
+        throw new BadRequestException('Slug already exists');
+      }
+      const shortDescription =
+        data.description.length > 50
+          ? data.description.substring(0, 50) + '...'
+          : data.description;
+      const longDescription = data.description;
+      const photoData = photos.map((photo) => {
+        return {
+          photoUrl: photo.filename,
+          photoSize: photo.size,
+        };
+      });
+      const dataToCreate = {
+        categoryId: data.categoryId,
+        name: data.name,
+        slug,
+        shortDescription,
+        longDescription,
+        price: data.price,
+        stock_quantity: data.stock_quantity,
+        primaryPhoto: photoData[0].photoUrl,
+        productPhotos: photoData,
       };
-    });
-    const dataToCreate = {
-      categoryId: data.categoryId,
-      name: data.name,
-      slug,
-      shortDescription,
-      longDescription,
-      price: data.price,
-      stock_quantity: data.stock_quantity,
-      primaryPhoto: photoData[0].photoUrl,
-      productPhotos: photoData,
-    };
-    return this.productRepository.create(dataToCreate);
+      return this.productRepository.create(dataToCreate);
+    } catch (error) {
+      await this.fileUploadProducerService.removeFileUploadJob(
+        photos.map((photo) => photo.filename),
+      );
+      throw new BadRequestException((error as Error).message);
+    }
   }
   findAll() {
     return this.productRepository.findAll();
