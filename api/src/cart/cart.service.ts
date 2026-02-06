@@ -3,23 +3,23 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateCartDto, UpdateCartDto } from './cart-items.dto';
-import { CartItemsRepository } from './cart-items.repository';
+import { CreateCartDto, UpdateCartDto } from './cart.dto';
+import { CartRepository } from './cart.repository';
 import { ProductService } from '../product/product.service';
 import { UserService } from '../user/user.service';
 import { OnEvent, EventEmitter2 } from '@nestjs/event-emitter';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
-export class CartItemsService {
+export class CartService {
   constructor(
-    private readonly cartItemsRepository: CartItemsRepository,
+    private readonly cartRepository: CartRepository,
     private readonly productService: ProductService,
     private readonly userService: UserService,
     private readonly eventEmitter: EventEmitter2,
-  ) {}
+  ) { }
   private async findOne(userId: string, productId: string) {
-    const cartItem = await this.cartItemsRepository.findOne(userId, productId);
+    const cartItem = await this.cartRepository.findOne(userId, productId);
     return cartItem ? cartItem : undefined;
   }
   async create(userId: string, data: CreateCartDto) {
@@ -36,16 +36,16 @@ export class CartItemsService {
       if (existCartItem.quantity + data.quantity > product[0].stock_quantity) {
         throw new BadRequestException('Product stock is not enough');
       }
-      await this.cartItemsRepository.update(userId, data.productId, {
+      await this.cartRepository.update(userId, data.productId, {
         quantity: existCartItem.quantity + data.quantity,
       });
     } else {
-      await this.cartItemsRepository.create(userId, data);
+      await this.cartRepository.create(userId, data);
     }
     return 'Product added to cart';
   }
   async findAll(userId: string) {
-    const cartItems = await this.cartItemsRepository.findAll(userId);
+    const cartItems = await this.cartRepository.findAll(userId);
     if (cartItems.length === 0) {
       throw new NotFoundException('Cart is empty');
     }
@@ -64,7 +64,7 @@ export class CartItemsService {
     if (data.quantity > cartItem.Product.stock_quantity) {
       throw new BadRequestException('Product stock is not enough');
     }
-    await this.cartItemsRepository.update(userId, productId, data);
+    await this.cartRepository.update(userId, productId, data);
     return 'Cart item updated';
   }
   async remove(userId: string, productId: string) {
@@ -72,11 +72,11 @@ export class CartItemsService {
     if (!cartItem) {
       throw new NotFoundException('Cart item not found');
     }
-    await this.cartItemsRepository.remove(userId, productId);
+    await this.cartRepository.remove(userId, productId);
     return 'Cart item removed';
   }
   async removeAll(userId: string, tx?: Prisma.TransactionClient) {
-    await this.cartItemsRepository.removeAll(userId, tx);
+    await this.cartRepository.removeAll(userId, tx);
     return 'All cart items removed';
   }
   @OnEvent('product.stock_quantity.updated')
@@ -84,7 +84,7 @@ export class CartItemsService {
     id: string;
     stock_quantity: number;
   }) {
-    await this.cartItemsRepository.removeAllByProductIdAndQuantity(
+    await this.cartRepository.removeAllByProductIdAndQuantity(
       data.id,
       data.stock_quantity,
     );

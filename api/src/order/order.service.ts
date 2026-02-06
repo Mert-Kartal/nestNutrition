@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { OrderRepository } from './order.repository';
-import { CartItemsService } from '../cart-items/cart-items.service';
+import { CartService } from '../cart/cart.service';
 import { ProductService } from '../product/product.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -8,12 +8,12 @@ import { PrismaService } from '../prisma/prisma.service';
 export class OrderService {
   constructor(
     private readonly orderRepository: OrderRepository,
-    private readonly cartItemsService: CartItemsService,
+    private readonly cartService: CartService,
     private readonly productService: ProductService,
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
   async create(userId: string) {
-    const cartItems = await this.cartItemsService.findAll(userId);
+    const cartItems = await this.cartService.findAll(userId);
     const orderItems = cartItems.map((item) => ({
       productId: item.product_id,
       quantity: item.quantity,
@@ -36,7 +36,7 @@ export class OrderService {
           tx,
         );
       }
-      await this.cartItemsService.removeAll(userId, tx);
+      await this.cartService.removeAll(userId, tx);
       return 'Order created successfully';
     });
   }

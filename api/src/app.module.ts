@@ -17,7 +17,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { CommentModule } from './comment/comment.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { CartItemsModule } from './cart-items/cart-items.module';
+import { CartModule } from './cart/cart.module';
 import { OrderModule } from './order/order.module';
 
 @Module({
@@ -42,10 +42,10 @@ import { OrderModule } from './order/order.module';
     FileUploadModule,
     ProductModule,
     CommentModule,
-    CartItemsModule,
+    CartModule,
     OrderModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
