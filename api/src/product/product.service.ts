@@ -22,7 +22,7 @@ export class ProductService {
     private readonly categoryService: CategoryService,
     private readonly fileUploadProducerService: FileUploadProducerService,
     private readonly eventEmitter: EventEmitter2,
-  ) {}
+  ) { }
   async create(data: CreateProductServiceDto, photos: Express.Multer.File[]) {
     try {
       await this.categoryService.findById(data.categoryId);
@@ -52,7 +52,7 @@ export class ProductService {
         slug,
         shortDescription,
         longDescription,
-        price: data.price,
+        price: data.price * 100,
         stock_quantity: data.stock_quantity,
         primaryPhoto: photoData[0].photoUrl,
         productPhotos: photoData,
@@ -121,6 +121,10 @@ export class ProductService {
             stock_quantity: data.stock_quantity,
           });
           break;
+        case 'price': {
+          updatePlain.price = (data.price as number) * 100;
+          break;
+        }
         default:
           updatePlain[key] = data[
             key

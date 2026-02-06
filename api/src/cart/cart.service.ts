@@ -7,7 +7,7 @@ import { CreateCartDto, UpdateCartDto } from './cart.dto';
 import { CartRepository } from './cart.repository';
 import { ProductService } from '../product/product.service';
 import { UserService } from '../user/user.service';
-import { OnEvent, EventEmitter2 } from '@nestjs/event-emitter';
+import { OnEvent } from '@nestjs/event-emitter';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -16,7 +16,6 @@ export class CartService {
     private readonly cartRepository: CartRepository,
     private readonly productService: ProductService,
     private readonly userService: UserService,
-    private readonly eventEmitter: EventEmitter2,
   ) { }
   private async findOne(userId: string, productId: string) {
     const cartItem = await this.cartRepository.findOne(userId, productId);
